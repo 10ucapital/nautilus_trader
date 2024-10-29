@@ -13,11 +13,7 @@
 //  limitations under the License.
 // -------------------------------------------------------------------------------------------------
 
-use std::{
-    collections::{hash_map::DefaultHasher, HashMap},
-    hash::{Hash, Hasher},
-    sync::{atomic::Ordering, Arc},
-};
+use std::sync::{atomic::Ordering, Arc};
 
 use futures::SinkExt;
 use futures_util::{stream, StreamExt};
@@ -51,11 +47,11 @@ impl WebSocketConfig {
     ) -> Self {
         Self {
             url,
-            handler,
+            handler: Arc::new(handler),
             headers,
             heartbeat,
             heartbeat_msg,
-            ping_handler,
+            ping_handler: ping_handler.map(Arc::new),
         }
     }
 }
@@ -367,7 +363,7 @@ counter = Counter()",
 
         let config = WebSocketConfig::py_new(
             format!("ws://127.0.0.1:{}", server.port),
-            handler.clone_ref(),
+            Python::with_gil(|py| handler.clone_ref(py)),
             vec![(header_key, header_value)],
             None,
             None,
@@ -471,7 +467,7 @@ checker = Checker()",
         let server = TestServer::setup(header_key.clone(), header_value.clone()).await;
         let config = WebSocketConfig::py_new(
             format!("ws://127.0.0.1:{}", server.port),
-            handler.clone(),
+            Python::with_gil(|py| handler.clone_ref(py)),
             vec![(header_key, header_value)],
             Some(1),
             Some("heartbeat message".to_string()),

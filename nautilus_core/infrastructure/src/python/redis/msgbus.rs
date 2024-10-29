@@ -13,8 +13,6 @@
 //  limitations under the License.
 // -------------------------------------------------------------------------------------------------
 
-use std::{collections::HashMap, sync::Arc};
-
 use bytes::Bytes;
 use futures::{pin_mut, stream::StreamExt};
 use nautilus_common::msgbus::database::MessageBusDatabaseAdapter;
@@ -23,7 +21,7 @@ use nautilus_core::{
     uuid::UUID4,
 };
 use nautilus_model::identifiers::TraderId;
-use pyo3::{prelude::*, types::PyBytes};
+use pyo3::prelude::*;
 
 use crate::redis::msgbus::RedisMessageBusDatabase;
 
@@ -56,9 +54,7 @@ impl RedisMessageBusDatabase {
         pyo3_async_runtimes::tokio::future_into_py(py, async move {
             pin_mut!(stream);
             while let Some(msg) = stream.next().await {
-                Python::with_gil(|py| {
-                    call_python(py, &callback, msg.into_py(py));
-                })
+                Python::with_gil(|py| call_python(py, &callback, msg.into_py(py)))?
             }
             Ok(())
         })

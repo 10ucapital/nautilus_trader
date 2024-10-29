@@ -443,7 +443,7 @@ mod tests {
 
         Python::with_gil(|py| {
             let bar_pyobject = bar.into_py(py);
-            let parsed_bar = Bar::from_pyobject(bar_pyobject.as_ref(py)).unwrap();
+            let parsed_bar = Bar::from_pyobject(bar_pyobject.bind(py)).unwrap();
             assert_eq!(parsed_bar, bar);
         });
     }

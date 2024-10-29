@@ -13,23 +13,14 @@
 //  limitations under the License.
 // -------------------------------------------------------------------------------------------------
 
-use std::{
-    collections::{hash_map::DefaultHasher, HashMap},
-    hash::{Hash, Hasher},
-    sync::{atomic::Ordering, Arc},
-};
+use std::sync::{atomic::Ordering, Arc};
 
-use futures_util::{stream, StreamExt};
 use nautilus_core::python::to_pyruntime_err;
-use pyo3::{exceptions::PyException, prelude::*, types::PyBytes};
+use pyo3::prelude::*;
 use tokio::io::AsyncWriteExt;
 use tokio_tungstenite::tungstenite::stream::Mode;
 
-use crate::{
-    http::{HttpClient, HttpMethod, HttpResponse, InnerHttpClient},
-    ratelimiter::{quota::Quota, RateLimiter},
-    socket::{SocketClient, SocketConfig},
-};
+use crate::socket::{SocketClient, SocketConfig};
 
 #[pymethods]
 impl SocketConfig {
@@ -46,7 +37,7 @@ impl SocketConfig {
             url,
             mode,
             suffix,
-            handler,
+            handler: Arc::new(handler),
             heartbeat,
         }
     }
@@ -140,6 +131,8 @@ impl SocketClient {
 ////////////////////////////////////////////////////////////////////////////////
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use pyo3::{prelude::*, prepare_freethreaded_python};
     use tokio::{
         io::{AsyncReadExt, AsyncWriteExt},
@@ -256,7 +249,7 @@ counter = Counter()",
 
         let config = SocketConfig {
             url: format!("127.0.0.1:{}", server.port),
-            handler: handler.clone_ref(py),
+            handler: Python::with_gil(|py| Arc::new(handler.clone_ref(py))),
             mode: Mode::Plain,
             suffix: b"\r\n".to_vec(),
             heartbeat: None,

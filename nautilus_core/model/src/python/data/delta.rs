@@ -320,7 +320,7 @@ mod tests {
 
         Python::with_gil(|py| {
             let delta_pyobject = delta.into_py(py);
-            let parsed_delta = OrderBookDelta::from_pyobject(delta_pyobject.as_ref(py)).unwrap();
+            let parsed_delta = OrderBookDelta::from_pyobject(delta_pyobject.bind(py)).unwrap();
             assert_eq!(parsed_delta, delta);
         });
     }

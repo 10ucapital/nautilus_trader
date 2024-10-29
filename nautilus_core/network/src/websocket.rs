@@ -26,8 +26,6 @@ use futures_util::{
     stream::{SplitSink, SplitStream},
     SinkExt, StreamExt,
 };
-use hyper::header::HeaderName;
-use nautilus_core::python::{to_pyruntime_err, to_pyvalue_err};
 use nautilus_cryptography::providers::install_cryptographic_provider;
 use pyo3::{prelude::*, types::PyBytes};
 use tokio::{net::TcpStream, sync::Mutex, task, time::sleep};
@@ -43,18 +41,18 @@ type SharedMessageWriter =
     Arc<Mutex<SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>>>;
 type MessageReader = SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[cfg_attr(
     feature = "python",
     pyo3::pyclass(module = "nautilus_trader.core.nautilus_pyo3.network")
 )]
 pub struct WebSocketConfig {
     pub url: String,
-    pub handler: PyObject,
+    pub handler: Arc<PyObject>,
     pub headers: Vec<(String, String)>,
     pub heartbeat: Option<u64>,
     pub heartbeat_msg: Option<String>,
-    pub ping_handler: Option<PyObject>,
+    pub ping_handler: Option<Arc<PyObject>>,
 }
 
 /// `WebSocketClient` connects to a websocket server to read and send messages.
@@ -159,8 +157,8 @@ impl WebSocketClientInner {
     /// Keep receiving messages from socket and pass them as arguments to handler.
     pub fn spawn_read_task(
         mut reader: MessageReader,
-        handler: PyObject,
-        ping_handler: Option<PyObject>,
+        handler: Arc<PyObject>,
+        ping_handler: Option<Arc<PyObject>>,
     ) -> task::JoinHandle<()> {
         tracing::debug!("Started task 'read'");
         task::spawn(async move {
