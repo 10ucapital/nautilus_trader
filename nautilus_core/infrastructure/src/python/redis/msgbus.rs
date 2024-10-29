@@ -53,7 +53,7 @@ impl RedisMessageBusDatabase {
     ) -> PyResult<Bound<'py, PyAny>> {
         let stream_rx = self.get_stream_receiver().map_err(to_pyruntime_err)?;
         let stream = RedisMessageBusDatabase::stream(stream_rx);
-        pyo3_asyncio_0_21::tokio::future_into_py(py, async move {
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
             pin_mut!(stream);
             while let Some(msg) = stream.next().await {
                 Python::with_gil(|py| {

@@ -45,32 +45,32 @@ impl Currency {
         Self::new_checked(code, precision, iso4217, name, currency_type).map_err(to_pyvalue_err)
     }
 
-    fn __setstate__(&mut self, py: Python, state: PyObject) -> PyResult<()> {
-        let tuple: (&PyString, &PyLong, &PyLong, &PyString, &PyString) = state.extract(py)?;
-        self.code = Ustr::from(tuple.0.extract()?);
-        self.precision = tuple.1.extract::<u8>()?;
-        self.iso4217 = tuple.2.extract::<u16>()?;
-        self.name = Ustr::from(tuple.3.extract()?);
-        self.currency_type = CurrencyType::from_str(tuple.4.extract()?).map_err(to_pyvalue_err)?;
-        Ok(())
-    }
-
-    fn __getstate__(&self, py: Python) -> PyResult<PyObject> {
-        Ok((
-            self.code.to_string(),
-            self.precision,
-            self.iso4217,
-            self.name.to_string(),
-            self.currency_type.to_string(),
-        )
-            .to_object(py))
-    }
-
-    fn __reduce__(&self, py: Python) -> PyResult<PyObject> {
-        let safe_constructor = py.get_type::<Self>().getattr("_safe_constructor")?;
-        let state = self.__getstate__(py)?;
-        Ok((safe_constructor, PyTuple::empty(py), state).to_object(py))
-    }
+    // fn __setstate__(&mut self, py: Python, state: &Bound<'_, PyAny>) -> PyResult<()> {
+    //     let tuple: (&PyString, &PyLong, &PyLong, &PyString, &PyString) = state.extract(py)?;
+    //     self.code = Ustr::from(tuple.0.extract()?);
+    //     self.precision = tuple.1.extract::<u8>()?;
+    //     self.iso4217 = tuple.2.extract::<u16>()?;
+    //     self.name = Ustr::from(tuple.3.extract()?);
+    //     self.currency_type = CurrencyType::from_str(tuple.4.extract()?).map_err(to_pyvalue_err)?;
+    //     Ok(())
+    // }
+    //
+    // fn __getstate__(&self, py: Python) -> PyResult<PyObject> {
+    //     Ok((
+    //         self.code.to_string(),
+    //         self.precision,
+    //         self.iso4217,
+    //         self.name.to_string(),
+    //         self.currency_type.to_string(),
+    //     )
+    //         .to_object(py))
+    // }
+    //
+    // fn __reduce__(&self, py: Python) -> PyResult<PyObject> {
+    //     let safe_constructor = py.get_type::<Self>().getattr("_safe_constructor")?;
+    //     let state = self.__getstate__(py)?;
+    //     Ok((safe_constructor, PyTuple::empty(py), state).to_object(py))
+    // }
 
     #[staticmethod]
     fn _safe_constructor() -> PyResult<Self> {

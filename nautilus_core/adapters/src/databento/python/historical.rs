@@ -95,7 +95,7 @@ impl DatabentoHistoricalClient {
     ) -> PyResult<Bound<'py, PyAny>> {
         let client = self.inner.clone();
 
-        pyo3_asyncio_0_21::tokio::future_into_py(py, async move {
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
             let mut client = client.lock().await; // TODO: Use a client pool
             let response = client.metadata().get_dataset_range(&dataset).await;
             match response {
@@ -141,7 +141,7 @@ impl DatabentoHistoricalClient {
         let publisher_venue_map = self.publisher_venue_map.clone();
         let ts_init = self.clock.get_time_ns();
 
-        pyo3_asyncio_0_21::tokio::future_into_py(py, async move {
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
             let mut client = client.lock().await; // TODO: Use a client pool
             let mut decoder = client
                 .timeseries()
@@ -211,7 +211,7 @@ impl DatabentoHistoricalClient {
         let publisher_venue_map = self.publisher_venue_map.clone();
         let ts_init = self.clock.get_time_ns();
 
-        pyo3_asyncio_0_21::tokio::future_into_py(py, async move {
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
             let mut client = client.lock().await; // TODO: Use a client pool
             let mut decoder = client
                 .timeseries()
@@ -279,7 +279,7 @@ impl DatabentoHistoricalClient {
         let publisher_venue_map = self.publisher_venue_map.clone();
         let ts_init = self.clock.get_time_ns();
 
-        pyo3_asyncio_0_21::tokio::future_into_py(py, async move {
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
             let mut client = client.lock().await; // TODO: Use a client pool
             let mut decoder = client
                 .timeseries()
@@ -356,7 +356,7 @@ impl DatabentoHistoricalClient {
         let publisher_venue_map = self.publisher_venue_map.clone();
         let ts_init = self.clock.get_time_ns();
 
-        pyo3_asyncio_0_21::tokio::future_into_py(py, async move {
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
             let mut client = client.lock().await; // TODO: Use a client pool
             let mut decoder = client
                 .timeseries()
@@ -425,7 +425,7 @@ impl DatabentoHistoricalClient {
         let publisher_venue_map = self.publisher_venue_map.clone();
         let ts_init = self.clock.get_time_ns();
 
-        pyo3_asyncio_0_21::tokio::future_into_py(py, async move {
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
             let mut client = client.lock().await; // TODO: Use a client pool
             let mut decoder = client
                 .timeseries()
@@ -483,7 +483,7 @@ impl DatabentoHistoricalClient {
         let publisher_venue_map = self.publisher_venue_map.clone();
         let ts_init = self.clock.get_time_ns();
 
-        pyo3_asyncio_0_21::tokio::future_into_py(py, async move {
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
             let mut client = client.lock().await; // TODO: Use a client pool
             let mut decoder = client
                 .timeseries()
@@ -541,7 +541,7 @@ impl DatabentoHistoricalClient {
         let publisher_venue_map = self.publisher_venue_map.clone();
         let ts_init = self.clock.get_time_ns();
 
-        pyo3_asyncio_0_21::tokio::future_into_py(py, async move {
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
             let mut client = client.lock().await; // TODO: Use a client pool
             let mut decoder = client
                 .timeseries()

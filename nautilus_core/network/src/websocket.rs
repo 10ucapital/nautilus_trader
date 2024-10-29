@@ -43,7 +43,7 @@ type SharedMessageWriter =
     Arc<Mutex<SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>>>;
 type MessageReader = SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 #[cfg_attr(
     feature = "python",
     pyo3::pyclass(module = "nautilus_trader.core.nautilus_pyo3.network")
@@ -168,9 +168,9 @@ impl WebSocketClientInner {
                 match reader.next().await {
                     Some(Ok(Message::Binary(data))) => {
                         tracing::trace!("Received message <binary> {} bytes", data.len());
-                        if let Err(e) =
-                            Python::with_gil(|py| handler.call1(py, (PyBytes::new(py, &data),)))
-                        {
+                        if let Err(e) = Python::with_gil(|py| {
+                            handler.call1(py, (PyBytes::new_bound(py, &data),))
+                        }) {
                             tracing::error!("Error calling handler: {e}");
                             break;
                         }
@@ -179,7 +179,7 @@ impl WebSocketClientInner {
                     Some(Ok(Message::Text(data))) => {
                         tracing::trace!("Received message: {data}");
                         if let Err(e) = Python::with_gil(|py| {
-                            handler.call1(py, (PyBytes::new(py, data.as_bytes()),))
+                            handler.call1(py, (PyBytes::new_bound(py, data.as_bytes()),))
                         }) {
                             tracing::error!("Error calling handler: {e}");
                             break;
@@ -190,9 +190,9 @@ impl WebSocketClientInner {
                         let payload = String::from_utf8(ping.clone()).expect("Invalid payload");
                         tracing::trace!("Received ping: {payload}",);
                         if let Some(ref handler) = ping_handler {
-                            if let Err(e) =
-                                Python::with_gil(|py| handler.call1(py, (PyBytes::new(py, &ping),)))
-                            {
+                            if let Err(e) = Python::with_gil(|py| {
+                                handler.call1(py, (PyBytes::new_bound(py, &ping),))
+                            }) {
                                 tracing::error!("Error calling handler: {e}");
                                 break;
                             }

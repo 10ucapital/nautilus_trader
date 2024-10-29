@@ -45,7 +45,7 @@ type SharedTcpWriter = Arc<Mutex<WriteHalf<MaybeTlsStream<TcpStream>>>>;
 type TcpReader = ReadHalf<MaybeTlsStream<TcpStream>>;
 
 /// Configuration for TCP socket connection.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 #[cfg_attr(
     feature = "python",
     pyo3::pyclass(module = "nautilus_trader.core.nautilus_pyo3.network")

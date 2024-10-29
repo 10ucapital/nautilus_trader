@@ -26,8 +26,6 @@
 //!
 //! - `ffi`: Enables the C foreign function interface (FFI) from `cbindgen`.
 
-#![allow(deprecated)] // TODO: Temporary for pyo3 upgrade
-
 use pyo3::{
     prelude::*,
     types::{PyDict, PyString},
@@ -39,8 +37,8 @@ use pyo3::{
 /// Also re-exports all submodule attributes so they can be imported directly from `nautilus_pyo3`
 /// refer: https://github.com/PyO3/pyo3/issues/2644
 #[pymodule]
-fn nautilus_pyo3(py: Python<'_>, m: &PyModule) -> PyResult<()> {
-    let sys = PyModule::import(py, "sys")?;
+fn nautilus_pyo3(py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
+    let sys = PyModule::import_bound(py, "sys")?;
     let sys_modules: &PyDict = sys.getattr("modules")?.downcast()?;
     let module_name = "nautilus_trader.core.nautilus_pyo3";
 

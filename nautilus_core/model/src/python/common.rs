@@ -18,7 +18,7 @@ use std::collections::HashMap;
 use pyo3::{
     exceptions::PyValueError,
     prelude::*,
-    types::{PyDict, PyList, PyNone},
+    types::{PyDict, PyList},
 };
 use serde_json::Value;
 use strum::IntoEnumIterator;
@@ -64,8 +64,8 @@ impl EnumIterator {
     }
 }
 
-pub fn value_to_pydict(py: Python<'_>, val: &Value) -> PyResult<Py<PyDict>> {
-    let dict = PyDict::new(py);
+pub fn value_to_pydict<'py>(py: Python<'py>, val: &Value) -> PyResult<Py<PyAny>> {
+    let dict = PyDict::new_bound(py);
 
     match val {
         Value::Object(map) => {
@@ -96,7 +96,7 @@ pub fn value_to_pyobject(py: Python<'_>, val: &Value) -> PyResult<PyObject> {
             }
         }
         Value::Array(arr) => {
-            let py_list = PyList::new(py, &[] as &[PyObject]);
+            let py_list = PyList::new_bound(py, &[] as &[PyObject]);
             for item in arr {
                 let py_item = value_to_pyobject(py, item)?;
                 py_list.append(py_item)?;
@@ -110,25 +110,24 @@ pub fn value_to_pyobject(py: Python<'_>, val: &Value) -> PyResult<PyObject> {
     }
 }
 
-pub fn commissions_from_vec<'py>(py: Python<'py>, commissions: Vec<Money>) -> PyResult<&'py PyAny> {
+pub fn commissions_from_vec<'py>(
+    py: Python<'py>,
+    commissions: Vec<Money>,
+) -> PyResult<Bound<'_, PyList>> {
     let mut values = Vec::new();
 
     for value in commissions {
         values.push(value.to_string());
     }
 
-    if values.is_empty() {
-        Ok(PyNone::get(py))
-    } else {
-        values.sort();
-        Ok(PyList::new(py, &values))
-    }
+    values.sort();
+    Ok(PyList::new_bound(py, values))
 }
 
 pub fn commissions_from_hashmap<'py>(
     py: Python<'py>,
     commissions: HashMap<Currency, Money>,
-) -> PyResult<&'py PyAny> {
+) -> PyResult<Bound<'_, PyList>> {
     commissions_from_vec(py, commissions.values().cloned().collect())
 }
 
